@@ -2,13 +2,414 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta http-equiv="refresh" content="0; url=logistics-blockchain/frontend/index.html" />
-  <title>Chuyển hướng tới Hệ thống Quản lý Chuỗi Logistics Blockchain...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hệ thống Quản lý Chuỗi Logistics Ứng dụng Blockchain | FIT-HPUni</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body style="background:#0b1120;color:#f8fafc;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;">
-  <div>
-    Đang mở Hệ thống Quản lý Chuỗi Logistics Ứng dụng Blockchain...
-    <a href="logistics-blockchain/frontend/index.html" style="color:#60a5fa;">Bấm vào đây nếu trình duyệt không tự chuyển hướng</a>.
+<body>
+
+  <!-- ===================================================================== -->
+  <!-- 1. MÀN HÌNH ĐĂNG NHẬP (ADMIN / NGƯỜI QUẢN LÝ / NGƯỜI DÙNG)            -->
+  <!-- ===================================================================== -->
+  <div id="loginScreen" class="login-wrapper">
+    <div class="login-card">
+      <div class="login-header">
+        <svg class="login-logo" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="60" cy="60" r="56" fill="#eff6ff" stroke="#2563eb" stroke-width="4" />
+          <circle cx="60" cy="60" r="41" fill="#1e40af" />
+          <path d="M40 46 L65 36 L85 45 L62 55 Z" fill="#ffffff" />
+          <rect x="44" y="64" width="32" height="14" rx="2" fill="none" stroke="#93c5fd" stroke-width="2" />
+          <text x="60" y="93" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="bold" font-family="Arial">FIT-HPUni</text>
+        </svg>
+        <h1>Hệ thống Quản lý Chuỗi Logistics</h1>
+        <p>Ứng dụng Công nghệ Blockchain • Trường Đại học Hải Phòng</p>
+      </div>
+
+      <!-- Khung chọn nhanh 3 vai trò -->
+      <div class="quick-role-box">
+        <div class="quick-role-title">Chọn nhanh tài khoản mẫu để đăng nhập:</div>
+        <div class="quick-role-buttons">
+          <button type="button" class="quick-role-btn active" id="btnQuickAdmin" onclick="app.fillLogin('admin', 'Demo@123', this)">
+            🛡️ Admin
+            <span>Quản trị viên</span>
+          </button>
+          <button type="button" class="quick-role-btn" id="btnQuickManager" onclick="app.fillLogin('quanly', 'Demo@123', this)">
+            📋 Người quản lý
+            <span>Kho & Vận tải</span>
+          </button>
+          <button type="button" class="quick-role-btn" id="btnQuickUser" onclick="app.fillLogin('nguoidung', 'Demo@123', this)">
+            👤 Người dùng
+            <span>Khách nhận hàng</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="loginErrorBox" class="notice-banner notice-error" style="margin-bottom: 14px;"></div>
+
+      <form onsubmit="app.handleLogin(event)">
+        <div class="form-group">
+          <label class="form-label">Tên đăng nhập</label>
+          <input type="text" id="loginUsername" class="form-control" value="admin" required placeholder="Nhập admin, quanly hoặc nguoidung" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Mật khẩu</label>
+          <input type="password" id="loginPassword" class="form-control" value="Demo@123" required placeholder="Nhập mật khẩu" />
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 11px; margin-top: 4px;">
+          Đăng nhập vào Hệ thống
+        </button>
+      </form>
+
+      <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #64748b; text-align: center;">
+        SV thực hiện: Chu Đức Quang Huy • Đoàn Phương Thảo • Nguyễn Hữu Hoàng
+      </div>
+    </div>
   </div>
+
+  <!-- ===================================================================== -->
+  <!-- 2. MÀN HÌNH CHÍNH CỦA HỆ THỐNG (HIỂN THỊ SAU KHI ĐĂNG NHẬP)           -->
+  <!-- ===================================================================== -->
+  <div id="mainAppScreen" style="display: none;">
+    <!-- Header trắng gọn gàng -->
+    <header class="top-header">
+      <div class="top-header-inner">
+        <div class="brand-box">
+          <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="60" cy="60" r="56" fill="#eff6ff" stroke="#2563eb" stroke-width="4" />
+            <circle cx="60" cy="60" r="41" fill="#1e40af" />
+            <path d="M40 46 L65 36 L85 45 L62 55 Z" fill="#ffffff" />
+            <text x="60" y="90" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="bold" font-family="Arial">FIT-HPUni</text>
+          </svg>
+          <div>
+            <div class="brand-title">HỆ THỐNG QUẢN LÝ CHUỖI LOGISTICS BLOCKCHAIN</div>
+            <div class="brand-sub">Khoa Công nghệ Thông tin - Trường Đại học Hải Phòng • GVHD: ThS. Lê Đắc Nhường</div>
+          </div>
+        </div>
+
+        <div class="user-session-bar">
+          <div class="user-info-pill">
+            <span>Xin chào, <strong id="currentUserName">Admin</strong></span>
+            <span id="currentUserRoleBadge" class="badge badge-admin">Admin</span>
+          </div>
+
+          <button type="button" class="btn btn-outline btn-sm" onclick="app.logout()">
+            Đăng xuất / Đổi tài khoản
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Thanh Menu các chức năng chính -->
+    <nav class="main-nav">
+      <div class="main-nav-inner">
+        <button type="button" class="nav-btn active" data-tab="sec-shipments" onclick="app.openTab('sec-shipments')">
+          📦 Danh sách Lô hàng
+        </button>
+        <button type="button" class="nav-btn" id="navCreateShipment" data-tab="sec-create" onclick="app.openTab('sec-create')">
+          ➕ Tạo Lô hàng mới
+        </button>
+        <button type="button" class="nav-btn" data-tab="sec-update" onclick="app.openTab('sec-update')">
+          🚚 Cập nhật & Nhận hàng
+        </button>
+        <button type="button" class="nav-btn" data-tab="sec-trace" onclick="app.openTab('sec-trace')">
+          🔍 Tra cứu Lịch sử Blockchain
+        </button>
+        <button type="button" class="nav-btn" id="navAdminUsers" data-tab="sec-users" onclick="app.openTab('sec-users')">
+          👥 Quản lý Tài khoản (Admin)
+        </button>
+      </div>
+    </nav>
+
+    <!-- Nội dung chính -->
+    <main class="container">
+      <!-- Thông báo thao tác -->
+      <div id="mainNoticeBanner" class="notice-banner">
+        <span id="mainNoticeText"></span>
+        <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('mainNoticeBanner').classList.remove('show')">Đóng</button>
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- CHỨC NĂNG 1: DANH SÁCH LÔ HÀNG & THỐNG KÊ TỔNG QUAN               -->
+      <!-- ================================================================= -->
+      <section id="sec-shipments" class="tab-section active">
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-label">Tổng số lô hàng</div>
+            <div class="stat-value" id="statTotal">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Đang vận chuyển / Giao hàng</div>
+            <div class="stat-value" id="statInTransit" style="color: #d97706;">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Đã giao thành công</div>
+            <div class="stat-value" id="statDelivered" style="color: #16a34a;">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Số khối Blockchain đã ghi</div>
+            <div class="stat-value" id="statBlocks" style="color: #2563eb;">0</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Danh sách các Lô hàng trong Chuỗi Logistics</div>
+              <div class="card-desc">Mỗi lô hàng đều được gắn mã băm (Hash) bảo toàn dữ liệu trên Blockchain</div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button type="button" id="btnQuickGoCreate" class="btn btn-primary btn-sm" onclick="app.openTab('sec-create')">
+                + Tạo lô hàng mới
+              </button>
+              <button type="button" class="btn btn-outline btn-sm" onclick="app.resetDemoData()">
+                Khôi phục dữ liệu mẫu
+              </button>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Mã lô</th>
+                  <th>Tên hàng hóa</th>
+                  <th>Nơi xuất phát → Nơi nhận</th>
+                  <th>Mã Hash Blockchain</th>
+                  <th>Trạng thái</th>
+                  <th>Ngày tạo</th>
+                  <th>Thao tác</th>
+                </tr>
+              </thead>
+              <tbody id="shipmentsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- CHỨC NĂNG 2: TẠO LÔ HÀNG MỚI (DÀNH CHO ADMIN & NGƯỜI QUẢN LÝ)     -->
+      <!-- ================================================================= -->
+      <section id="sec-create" class="tab-section">
+        <div class="card" style="max-width: 720px; margin: 0 auto;">
+          <div class="card-header">
+            <div>
+              <div class="card-title">➕ Khởi tạo Lô hàng Mới lên Chuỗi khối</div>
+              <div class="card-desc">Chức năng dành cho <strong>Admin</strong> và <strong>Người quản lý</strong></div>
+            </div>
+          </div>
+
+          <form onsubmit="app.handleCreateShipment(event)">
+            <div class="form-group">
+              <label class="form-label">Tên lô hàng / Mặt hàng *</label>
+              <input type="text" id="inpProductName" class="form-control" required placeholder="Ví dụ: Lô Máy tính xách tay HP (100 chiếc)" oninput="app.updatePreviewHash()" />
+            </div>
+
+            <div class="grid-2" style="gap: 16px;">
+              <div class="form-group">
+                <label class="form-label">Nơi xuất phát (Kho đi) *</label>
+                <input type="text" id="inpOriginLocation" class="form-control" required value="Cảng Quốc tế Lạch Huyện, Hải Phòng" oninput="app.updatePreviewHash()" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Nơi nhận hàng (Điểm đến) *</label>
+                <input type="text" id="inpDestLocation" class="form-control" required value="Trung tâm Phân phối Quận Lê Chân, Hải Phòng" oninput="app.updatePreviewHash()" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Thông tin chứng từ / Ghi chú nguồn gốc</label>
+              <textarea id="inpDocNote" class="form-control" rows="3" placeholder="Nhập số hóa đơn, chứng nhận xuất xứ CO/CQ, điều kiện bảo quản..." oninput="app.updatePreviewHash()">Chứng nhận xuất xứ CO/CQ đầy đủ, kiện hàng nguyên niêm phong.</textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Mã băm chứng từ gốc (SHA-256 Hash tự động tạo để ghi lên Blockchain)</label>
+              <input type="text" id="inpOriginHash" class="form-control mono" readonly />
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 8px;">
+              <button type="submit" class="btn btn-primary">
+                Lưu Lô hàng & Ghi nhận Blockchain
+              </button>
+              <button type="button" class="btn btn-outline" onclick="app.openTab('sec-shipments')">
+                Quay lại danh sách
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- CHỨC NĂNG 3: CẬP NHẬT TRẠNG THÁI & XÁC NHẬN NHẬN HÀNG             -->
+      <!-- ================================================================= -->
+      <section id="sec-update" class="tab-section">
+        <div class="grid-2">
+          <!-- Khung dành cho Admin & Người quản lý: Cập nhật vận chuyển -->
+          <div class="card" id="cardManagerUpdate">
+            <div class="card-header">
+              <div>
+                <div class="card-title">🚚 Cập nhật Trạng thái Vận chuyển</div>
+                <div class="card-desc">Dành cho <strong>Admin</strong> và <strong>Người quản lý</strong></div>
+              </div>
+            </div>
+
+            <div id="managerLockNotice" style="display: none; padding: 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; color: #64748b; font-size: 13.5px; margin-bottom: 16px;">
+              Bạn đang đăng nhập với vai trò <strong>Người dùng</strong>. Bạn chỉ có quyền <strong>Xác nhận Nhận hàng</strong> ở khung bên phải.
+            </div>
+
+            <form id="formManagerUpdate" onsubmit="app.handleUpdateStatus(event)">
+              <div class="form-group">
+                <label class="form-label">Chọn lô hàng cần cập nhật</label>
+                <select id="selUpdateShipment" class="form-control" onchange="app.syncUpdateSelection(this.value)"></select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Chọn trạng thái tiếp theo</label>
+                <select id="selNewStatus" class="form-control">
+                  <option value="PICKED_UP">1. Đã nhận bàn giao từ kho xuất (PICKED_UP)</option>
+                  <option value="IN_TRANSIT">2. Đang trên đường vận chuyển (IN_TRANSIT)</option>
+                  <option value="AT_WAREHOUSE">3. Đã nhập kho trung chuyển (AT_WAREHOUSE)</option>
+                  <option value="OUT_FOR_DELIVERY">4. Đang giao hàng đến người nhận (OUT_FOR_DELIVERY)</option>
+                  <option value="EXCEPTION">5. Ghi nhận sự cố / Ngoại lệ (EXCEPTION)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Ghi chú cập nhật hành trình</label>
+                <input type="text" id="inpUpdateNote" class="form-control" required placeholder="Ví dụ: Hàng đã qua trạm kiểm soát, tình trạng tốt" value="Đã kiểm tra niêm phong và cập nhật chặng vận chuyển" />
+              </div>
+
+              <button type="submit" id="btnSubmitManagerUpdate" class="btn btn-primary">
+                Cập nhật Trạng thái lên Blockchain
+              </button>
+            </form>
+          </div>
+
+          <!-- Khung dành cho Người dùng (hoặc Admin): Xác nhận đã nhận hàng -->
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">✅ Xác nhận Đã nhận hàng (Người nhận)</div>
+                <div class="card-desc">Dành cho <strong>Người dùng (Khách nhận hàng)</strong> hoàn tất đơn hàng</div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Chọn lô hàng cần xác nhận nhận hàng</label>
+              <select id="selConfirmShipment" class="form-control" onchange="app.renderConfirmBox()"></select>
+            </div>
+
+            <div id="confirmShipmentInfoBox" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 16px; font-size: 13.5px;"></div>
+
+            <button type="button" id="btnConfirmDelivery" class="btn btn-success" onclick="app.handleConfirmDelivery()">
+              ✅ Xác nhận Đã Nhận Đủ Hàng (DELIVERED)
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- CHỨC NĂNG 4: TRA CỨU LỊCH SỬ BLOCKCHAIN                           -->
+      <!-- ================================================================= -->
+      <section id="sec-trace" class="tab-section">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">🔍 Tra cứu Nguồn gốc & Lịch sử Chuỗi khối (Blockchain)</div>
+              <div class="card-desc">Kiểm tra toàn bộ các mốc thời gian và mã băm giao dịch của từng lô hàng</div>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <span style="font-size: 13.5px; font-weight: 600;">Chọn lô hàng:</span>
+              <select id="selTraceShipment" class="form-control" style="width: 300px;" onchange="app.renderTraceView()"></select>
+            </div>
+          </div>
+
+          <div id="traceDetailContainer"></div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- CHỨC NĂNG 5: QUẢN LÝ TÀI KHOẢN (CHỈ DÀNH CHO ADMIN)               -->
+      <!-- ================================================================= -->
+      <section id="sec-users" class="tab-section">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">👥 Danh sách Tài khoản trong Hệ thống</div>
+                <div class="card-desc">Lưu trữ trong bảng <code class="mono">users</code> của CSDL MySQL</div>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Tài khoản</th>
+                    <th>Họ và tên</th>
+                    <th>Vai trò</th>
+                    <th>Bộ phận</th>
+                    <th>Chọn sửa</th>
+                  </tr>
+                </thead>
+                <tbody id="usersTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">🔑 Thêm mới hoặc Phân quyền Tài khoản</div>
+                <div class="card-desc">Chỉ <strong>Admin</strong> mới có quyền quản lý người dùng</div>
+              </div>
+            </div>
+
+            <form onsubmit="app.handleSaveUser(event)">
+              <div class="form-group">
+                <label class="form-label">Tên đăng nhập (username) *</label>
+                <input type="text" id="usrUsername" class="form-control" required placeholder="Ví dụ: quanly2" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Mật khẩu *</label>
+                <input type="text" id="usrPassword" class="form-control" required value="Demo@123" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Họ và tên hiển thị *</label>
+                <input type="text" id="usrFullName" class="form-control" required placeholder="Nhập họ và tên..." />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Vai trò phân quyền *</label>
+                <select id="usrRole" class="form-control">
+                  <option value="ADMIN">Admin (Quản trị viên hệ thống)</option>
+                  <option value="MANAGER">Người quản lý (Điều phối Kho & Vận tải)</option>
+                  <option value="USER">Người dùng (Khách hàng / Người nhận)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Đơn vị / Bộ phận</label>
+                <input type="text" id="usrDepartment" class="form-control" placeholder="Ví dụ: Phòng Điều vận Logistics" />
+              </div>
+
+              <button type="submit" class="btn btn-primary">
+                Lưu Tài khoản vào Hệ thống
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <div class="footer-note">
+        Đồ án Học phần Công nghệ Blockchain • Đề tài: Xây dựng hệ thống quản lý chuỗi Logistics ứng dụng công nghệ Blockchain • Trường Đại học Hải Phòng (2026)
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
+
